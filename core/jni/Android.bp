@@ -131,6 +131,7 @@ cc_defaults_for_libandroid_runtime {
 
     target: {
         android: {
+            cflags: ["-O3"],
             srcs: [
                 "AndroidRuntime.cpp",
                 "com_android_internal_content_F2fsUtils.cpp",
