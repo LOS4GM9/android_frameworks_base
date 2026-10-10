@@ -6257,7 +6257,7 @@ public class ActivityManagerService extends IActivityManager.Stub
         // not be quite right -- it means that even if the caller would have access for another
         // reason (such as being the owner of the component it is trying to access), it would still
         // fail.  This also means the system and root uids would be able to deny themselves
-        // access to permissions, which...  well okay. Â¯\_(ãƒ„)_/Â¯
+        // access to permissions, which...  well okay. ¯\_(ツ)_/¯
         if (permission != null) {
             synchronized (sActiveProcessInfoSelfLocked) {
                 ProcessInfo procInfo = sActiveProcessInfoSelfLocked.get(pid);
@@ -8440,18 +8440,6 @@ public class ActivityManagerService extends IActivityManager.Stub
                             "Render thread does not belong to process");
                 }
                 proc.setRenderThreadTid(tid);
-                if ("com.android.systemui".equals(proc.processName)) {
-                    final int cpuMask = mContext.getResources().getInteger(
-                            com.android.internal.R.integer.config_systemUiThreadCpuMask);
-                    if (cpuMask != 0) {
-                        try {
-                            Process.setThreadCpuAffinity(pid, cpuMask);
-                            Process.setThreadCpuAffinity(tid, cpuMask);
-                        } catch (RuntimeException e) {
-                            Slog.w(TAG, "Unable to set SystemUI UI thread affinity", e);
-                        }
-                    }
-                }
                 if (DEBUG_OOM_ADJ) {
                     Slog.d("UI_FIFO", "Set RenderThread tid " + tid + " for pid " + pid);
                 }

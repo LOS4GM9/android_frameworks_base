@@ -1289,12 +1289,6 @@ public class Process {
     public static final native long[] getSchedAffinity(int tid);
 
     /**
-     * Sets CPU affinity for a single thread.
-     * @hide
-     */
-    public static final native void setThreadCpuAffinity(int tid, int cpuMask);
-
-    /**
      * Set the priority of the calling thread, based on Linux niceness priorities.  See
      * {@link #setThreadPriority(int, int)} for more information. This is preferred over
      * the two argument version when possible. The new priority is not inherited by Java
