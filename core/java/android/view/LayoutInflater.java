@@ -696,7 +696,8 @@ public abstract class LayoutInflater {
             Trace.traceBegin(Trace.TRACE_TAG_VIEW, name);
 
             // Opportunistically create view directly instead of using reflection
-            View view = tryCreateViewDirect(prefixedName, viewContext, attrs);
+            View view = mFilter == null
+                    ? tryCreateViewDirect(prefixedName, viewContext, attrs) : null;
             if (view == null) {
                 Constructor<? extends View> constructor = sConstructorMap.get(name);
                 if (constructor != null && !verifyClassLoader(constructor)) {
@@ -1263,17 +1264,11 @@ public abstract class LayoutInflater {
         switch (name) {
             case "android.widget.LinearLayout": // 13486 occurrences
                 return new android.widget.LinearLayout(context, attributeSet);
-            case "android.widget.View": // 6930 occurrences
-            case "android.webkit.View": // 63 occurrences
             case "android.view.View": // 63 occurrences
-            case "android.app.View": // 62 occurrences
                 return new android.view.View(context, attributeSet);
             case "android.widget.FrameLayout": // 6447 occurrences
                 return new android.widget.FrameLayout(context, attributeSet);
-            case "android.widget.ViewStub": // 5613 occurrences
             case "android.view.ViewStub": // 228 occurrences
-            case "android.app.ViewStub": // 227 occurrences
-            case "android.webkit.ViewStub": // 226 occurrences
                 return new android.view.ViewStub(context, attributeSet);
             case "android.widget.TextView": // 4722 occurrences
                 return new android.widget.TextView(context, attributeSet);
@@ -1299,10 +1294,7 @@ public abstract class LayoutInflater {
                 return new android.widget.HorizontalScrollView(context, attributeSet);
             case "android.widget.ScrollView": // 67 occurrences
                 return new android.widget.ScrollView(context, attributeSet);
-            case "android.widget.NotificationHeaderView": // 65 occurrences
-            case "android.webkit.NotificationHeaderView": // 65 occurrences
             case "android.view.NotificationHeaderView": // 65 occurrences
-            case "android.app.NotificationHeaderView": // 65 occurrences
                 return new android.view.NotificationHeaderView(context, attributeSet);
             case "android.widget.ListView": // 58 occurrences
                 return new android.widget.ListView(context, attributeSet);
@@ -1329,9 +1321,7 @@ public abstract class LayoutInflater {
             case "android.widget.TextSwitcher": // 8 occurrences
                 return new android.widget.TextSwitcher(context, attributeSet);
             case "android.widget.SurfaceView": // 8 occurrences
-            case "android.webkit.SurfaceView": // 1 occurrence
             case "android.view.SurfaceView": // 1 occurrence
-            case "android.app.SurfaceView": // 1 occurrence
                 return new android.view.SurfaceView(context, attributeSet);
             case "android.widget.CheckedTextView": // 8 occurrences
                 return new android.widget.CheckedTextView(context, attributeSet);
@@ -1350,8 +1340,6 @@ public abstract class LayoutInflater {
             case "android.widget.ZoomButton": // 2 occurrences
                 return new android.widget.ZoomButton(context, attributeSet);
             case "android.widget.TextureView": // 2 occurrences
-            case "android.webkit.TextureView": // 2 occurrences
-            case "android.app.TextureView": // 2 occurrences
             case "android.view.TextureView": // 2 occurrences
                 return new android.view.TextureView(context, attributeSet);
             case "android.widget.ExpandableListView": // 2 occurrences
@@ -1362,7 +1350,6 @@ public abstract class LayoutInflater {
                 return new android.widget.TextClock(context, attributeSet);
             case "android.widget.AutoCompleteTextView": // 1 occurrence
                 return new android.widget.AutoCompleteTextView(context, attributeSet);
-            case "android.widget.WebView": // 1 occurrence
             case "android.webkit.WebView": // 1 occurrence
                 return new android.webkit.WebView(context, attributeSet);
         }
