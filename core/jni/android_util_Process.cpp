@@ -29,6 +29,8 @@
 #include <processgroup/processgroup.h>
 #include <processgroup/sched_policy.h>
 #include <android-base/logging.h>
+#include <android-base/file.h>
+#include <android-base/properties.h>
 #include <android-base/unique_fd.h>
 #include <cutils/misc.h>
 
@@ -301,8 +303,21 @@ void android_os_Process_setProcessGroup(JNIEnv* env, jobject clazz, int pid, jin
         signalExceptionForGroupError(env, ESRCH, pid);
         return;
     }
-    if (!SetProcessProfilesCached(uid, pid, {get_cpuset_policy_profile_name((SchedPolicy)grp)}))
+    if (!SetProcessProfilesCached(uid, pid, {get_cpuset_policy_profile_name((SchedPolicy)grp)})) {
         signalExceptionForGroupError(env, errno ? errno : EPERM, pid);
+        return;
+    }
+    // Device opt-in. Only per-app memcg files are written, never the root cgroup.
+    static const int bgSwappiness = android::base::GetIntProperty<int>(
+            "ro.config.gm9_bg_swappiness", 0, 0, 200);
+    if (uid >= FIRST_APPLICATION_UID && bgSwappiness != 0) {
+        const std::string path = "/dev/memcg/apps/uid_" + std::to_string(uid)
+                + "/pid_" + std::to_string(pid) + "/memory.swappiness";
+        const int swappiness = grp == SP_BACKGROUND ? bgSwappiness : 60;
+        if (!android::base::WriteStringToFile(std::to_string(swappiness), path)) {
+            ALOGV("Per-app swappiness unavailable for pid %d", pid);
+        }
+    }
 }
 
 void android_os_Process_setProcessFrozen(
@@ -503,6 +518,21 @@ jintArray android_os_Process_getExclusiveCores(JNIEnv* env, jobject clazz) {
 
     env->ReleaseIntArrayElements(cpus, cpu_elements, 0);
     return cpus;
+}
+
+void android_os_Process_setThreadCpuAffinity(JNIEnv* env, jobject, jint tid, jint mask) {
+    if (tid <= 0 || mask <= 0) {
+        jniThrowException(env, "java/lang/IllegalArgumentException", "Invalid tid or CPU mask");
+        return;
+    }
+    cpu_set_t set;
+    CPU_ZERO(&set);
+    for (int cpu = 0; cpu < 31; cpu++) {
+        if (mask & (1U << cpu)) CPU_SET(cpu, &set);
+    }
+    if (sched_setaffinity(tid, sizeof(set), &set) != 0) {
+        signalExceptionForError(env, errno, tid);
+    }
 }
 
 jlongArray android_os_Process_getSchedAffinity(JNIEnv* env, jobject clazz, jint pid) {
@@ -1372,6 +1402,7 @@ static const JNINativeMethod methods[] = {
         {"createProcessGroup", "(II)I", (void*)android_os_Process_createProcessGroup},
         {"getExclusiveCores", "()[I", (void*)android_os_Process_getExclusiveCores},
         {"getSchedAffinity", "(I)[J", (void*)android_os_Process_getSchedAffinity},
+        {"setThreadCpuAffinity", "(II)V", (void*)android_os_Process_setThreadCpuAffinity},
         {"setArgV0Native", "(Ljava/lang/String;)V", (void*)android_os_Process_setArgV0},
         {"setUid", "(I)I", (void*)android_os_Process_setUid},
         {"setGid", "(I)I", (void*)android_os_Process_setGid},
