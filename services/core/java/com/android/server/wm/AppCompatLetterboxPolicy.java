@@ -195,9 +195,7 @@ class AppCompatLetterboxPolicy {
         final boolean shouldShowLetterboxUi = shouldShowLetterboxUi(w);
         final boolean isLetterboxedNotForDisplayCutout = shouldShowLetterboxUi
                 && !w.isLetterboxedForDisplayCutout();
-        mAppCompatRoundedCorners.updateRoundedCornersIfNeeded(w,
-                isLetterboxedNotForDisplayCutout
-                        && !isFreeformActivityMatchParentAppBoundsHeight());
+        mAppCompatRoundedCorners.updateRoundedCornersIfNeeded(w);
         updateWallpaperForLetterbox(w, isLetterboxedNotForDisplayCutout);
         if (shouldShowLetterboxUi) {
             mLetterboxPolicyState.layoutLetterboxIfNeeded(w);
