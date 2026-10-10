@@ -6091,7 +6091,6 @@
 
   <!-- Whether WM DisplayContent supports high performance transitions -->
   <java-symbol type="bool" name="config_deviceSupportsHighPerfTransitions" />
-  <java-symbol type="integer" name="config_systemUiThreadCpuMask" />
 
   <java-symbol type="string" name="config_wearRemoteIntentAction" />
 
