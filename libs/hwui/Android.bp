@@ -83,7 +83,6 @@ cc_defaults {
 
     target: {
         android: {
-            cflags: ["-O3"],
             include_dirs: [
                 "external/skia/src/image",
                 "external/skia/src/gpu",
